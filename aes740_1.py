@@ -10,7 +10,7 @@ import numpy as np
 from metpy.plots import add_metpy_logo, SkewT
 from metpy.units import units
 
-data = netCDF4.Dataset('C:/Users/jmayhall/Downloads/example_model_output.nc').variables
+data = netCDF4.Dataset('C:/Users/jmayhall/Downloads/aes740_hw1/example_model_output.nc').variables
 x, z, theta, pi, rv, rc, rr, w = (data.get('x_scl'), data.get('z_scl'), data.get('theta'), data.get('pi'),
                                   data.get('rv'), data.get('rc'), data.get('rr'), data.get('w'))
 x, z, theta, pi, rv, rc, rr, w = (np.array(x), np.array(z), np.array(theta), np.array(pi), np.array(rv), np.array(rc),
@@ -27,7 +27,7 @@ s = np.divide(np.add(np.multiply(1005.7, temp_kel), np.multiply(9.81, z)), 1000)
 h = np.divide(np.add(np.add(np.multiply(1005.7, temp_kel), np.multiply(9.81, z)),
                      np.multiply(2.5 * (10 ** 6), rv)), 1000)  # Moist static energy (kJ/kg)
 
-r_total = np.add(np.add(rv, rc), rr)  # Total water condensate mixing ratio.
+r_cond = np.add(rr, rc)  # Total water condensate mixing ratio.
 
 theta_e = np.add(theta, np.multiply(np.multiply(np.divide(2.5 * (10 ** 6), 1005.7), pi),
                                     rv))  # Equivalent potential temperature
@@ -37,7 +37,7 @@ td = np.divide(np.multiply(243.5, np.log(np.divide(np.divide(e, 100), 6.112))),
 
 theta_rho = np.multiply(np.divide(temp_kel, pi),
                         np.divide(np.add(np.divide(rv, 0.622), 1),
-                                  np.add(np.add(1, rv), rc)))  # Density potential temperature
+                                  np.add(np.add(1, rv), r_cond)))  # Density potential temperature
 
 fig, axes = plt.subplots(nrows=2, ncols=2)
 temps = [theta, theta_e, theta_rho, temp_kel]
@@ -61,7 +61,7 @@ temps = [theta, theta_e, theta_rho, temp_kel]
 labels = [r'Potential Temperature ($\theta$)', r'Equivalent Potential Temperature ($\theta_e$)',
           r'Density Potential Temperature ($\theta_{\rho}$)', r'Temperature']
 for i, ax in enumerate(axes.flat):
-    im = ax.pcolormesh(x, z, temps[i].T, shading='nearest', cmap='rainbow', vmin=300, vmax=350)
+    im = ax.pcolormesh(x, z, temps[i].T, shading='nearest', cmap='rainbow', vmin=300, vmax=325)
     ax.set_title(labels[i])
     if i == 0 or i == 2:
         ax.set_ylabel('Height (m)')
@@ -114,10 +114,10 @@ plt.show()
 plt.close('all')
 
 fig, axes = plt.subplots(ncols=2)
-rs = [r_total, rv]
+rs = [r_cond, rv]
 labels = [r'Mixing Ratio of Total Condensate', r'Mixing Ratio of Water Vapor ($r_v$)']
 for i, ax in enumerate(axes.flat):
-    im = ax.pcolormesh(x, z, rs[i].T, shading='nearest', cmap='terrain_r', vmin=0, vmax=0.02)
+    im = ax.pcolormesh(x, z, rs[i].T, shading='nearest', cmap='terrain_r', vmin=0, vmax=0.0175)
     ax.set_title(labels[i])
     if i == 0:
         ax.set_ylabel('Height (m)')
