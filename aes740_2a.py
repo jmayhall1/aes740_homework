@@ -23,82 +23,82 @@ cpc_data = glob.glob(f'{nov_path}/cpc_data/*.nc') + glob.glob(f'{dec_path}/cpc_d
 kazr_data = glob.glob(f'{nov_path}/kazr_data/*.nc') + glob.glob(f'{dec_path}/kazr_data/*.nc')
 met_data = glob.glob(f'{nov_path}/met_data/*.cdf') + glob.glob(f'{dec_path}/met_data/*.cdf')
 sonde_data = glob.glob(f'{nov_path}/sonde_data/*.cdf') + glob.glob(f'{dec_path}/sonde_data/*.cdf')
-#
-# for file in ccn_data:
-#     data = np.array(netCDF4.Dataset(file).variables.get('N_CCN_dN')).T
-#     bounds = np.array(netCDF4.Dataset(file).variables.get('droplet_size_bounds'))
-#     print(bounds)
-#     plt.gca().invert_yaxis()
-#     plt.imshow(data,vmin=0, vmax=1000, aspect='auto')
-#     plt.yticks(np.arange(0, 21, 5))
-#     plt.xlabel('Time')
-#     plt.ylabel('Bin')
-#     plt.title(f'CCN Count by Bin Size ({file[-18:-3]})')
-#     plt.colorbar(label='CCN Count', ticks=[0, 250, 500, 750, 1000])
-#     plt.savefig(f'CCN_{file[-18:-3]}.png', dpi=1000)
-#     plt.close('all')
-#
-# for file in cpc_data:
-#     data = np.array(netCDF4.Dataset(file).variables.get('concentration'))
-#     plt.plot(data)
-#     plt.yticks(np.arange(0, 8001, 500))
-#     plt.xlabel('Time')
-#     plt.ylabel(r'CPC Count ($\frac{1}{cm^3}$)')
-#     plt.title(f'CPC Count by per cubic centimeter ({file[-18:-3]})')
-#     plt.savefig(f'CPC_{file[-18:-3]}.png', dpi=1000)
-#     plt.close('all')
-#
-# for file in ceilometer_data:
-#     data = np.array(netCDF4.Dataset(file).variables.get('first_cbh'))
-#     data2 = np.array(netCDF4.Dataset(file).variables.get('second_cbh'))
-#     data3 = np.array(netCDF4.Dataset(file).variables.get('third_cbh'))
-#     data[data < 0] = np.nan
-#     data2[data2 < 0] = np.nan
-#     data3[data3 < 0] = np.nan
-#     plt.plot(data, label='First Cloud Deck')
-#     plt.plot(data2, label='Second Cloud Deck')
-#     plt.plot(data3, label='Third Cloud Deck')
-#     plt.yticks(np.arange(0, 10000, 1000))
-#     plt.xticks(np.arange(0, 6001, 1000))
-#     plt.xlabel('Time')
-#     plt.ylabel(r'CBH (m)')
-#     plt.legend()
-#     plt.title(f'CBH in meter over time ({file[-18:-3]})')
-#     plt.savefig(f'CBH_{file[-18:-3]}.png', dpi=1000)
-#     plt.close('all')
-#
-# for file in kazr_data:
-#     data = np.array(netCDF4.Dataset(file).variables.get('reflectivity')).T
-#     data[data < -100] = np.nan
-#     plt.imshow(data, aspect='auto', vmin=-50, vmax=50)
-#     plt.gca().invert_yaxis()
-#     plt.yticks(np.arange(0, 500, 100))
-#     plt.xticks(np.arange(0, 35001, 5000))
-#     plt.xlabel('Time')
-#     plt.ylabel(r'Range')
-#     plt.title(f'Equivalent Reflectivity over Range and Time ({file[-18:-3]})')
-#     plt.colorbar(label='Equivalent Reflectivity (dBZ)')
-#     plt.savefig(f'kazr_{file[-18:-3]}.png', dpi=1000)
-#     plt.close('all')
-#
-# for file in met_data:
-#     data = netCDF4.Dataset(file).variables
-#     temp = np.array(data.get('temp_mean'))
-#     rh = np.array(data.get('rh_mean'))
-#     time = np.array(data.get('time'))
-#     plt.plot(time, temp)
-#     plt.xlabel('Time (seconds since midnight)')
-#     plt.ylabel(r'Average Temperature (C)')
-#     plt.title(f'Time vs Temperature ({file[-18:-3]})')
-#     plt.savefig(f'temp_{file[-18:-3]}.png', dpi=1000)
-#     plt.close('all')
-#     plt.plot(time, rh)
-#     plt.xlabel('Time (seconds since midnight)')
-#     plt.ylabel(r'Average Relative Humidity (%)')
-#     plt.title(f'Time vs RH ({file[-18:-3]})')
-#     plt.savefig(f'rh_{file[-18:-3]}.png', dpi=1000)
-#     plt.close('all')
-#
+
+for file in ccn_data:
+    data = np.array(netCDF4.Dataset(file).variables.get('N_CCN_dN')).T
+    bounds = np.array(netCDF4.Dataset(file).variables.get('droplet_size_bounds'))
+    print(bounds)
+    plt.gca().invert_yaxis()
+    plt.imshow(data,vmin=0, vmax=1000, aspect='auto')
+    plt.yticks(np.arange(0, 21, 5))
+    plt.xlabel('Time')
+    plt.ylabel('Bin')
+    plt.title(f'CCN Count by Bin Size ({file[-18:-3]})')
+    plt.colorbar(label='CCN Count', ticks=[0, 250, 500, 750, 1000])
+    plt.savefig(f'CCN_{file[-18:-3]}.png', dpi=1000)
+    plt.close('all')
+
+for file in cpc_data:
+    data = np.array(netCDF4.Dataset(file).variables.get('concentration'))
+    plt.plot(data)
+    plt.yticks(np.arange(0, 8001, 500))
+    plt.xlabel('Time')
+    plt.ylabel(r'CPC Count ($\frac{1}{cm^3}$)')
+    plt.title(f'CPC Count by per cubic centimeter ({file[-18:-3]})')
+    plt.savefig(f'CPC_{file[-18:-3]}.png', dpi=1000)
+    plt.close('all')
+
+for file in ceilometer_data:
+    data = np.array(netCDF4.Dataset(file).variables.get('first_cbh'))
+    data2 = np.array(netCDF4.Dataset(file).variables.get('second_cbh'))
+    data3 = np.array(netCDF4.Dataset(file).variables.get('third_cbh'))
+    data[data < 0] = np.nan
+    data2[data2 < 0] = np.nan
+    data3[data3 < 0] = np.nan
+    plt.plot(data, label='First Cloud Deck')
+    plt.plot(data2, label='Second Cloud Deck')
+    plt.plot(data3, label='Third Cloud Deck')
+    plt.yticks(np.arange(0, 10000, 1000))
+    plt.xticks(np.arange(0, 6001, 1000))
+    plt.xlabel('Time')
+    plt.ylabel(r'CBH (m)')
+    plt.legend()
+    plt.title(f'CBH in meter over time ({file[-18:-3]})')
+    plt.savefig(f'CBH_{file[-18:-3]}.png', dpi=1000)
+    plt.close('all')
+
+for file in kazr_data:
+    data = np.array(netCDF4.Dataset(file).variables.get('reflectivity')).T
+    data[data < -100] = np.nan
+    plt.imshow(data, aspect='auto', vmin=-50, vmax=50)
+    plt.gca().invert_yaxis()
+    plt.yticks(np.arange(0, 500, 100))
+    plt.xticks(np.arange(0, 35001, 5000))
+    plt.xlabel('Time')
+    plt.ylabel(r'Range')
+    plt.title(f'Equivalent Reflectivity over Range and Time ({file[-18:-3]})')
+    plt.colorbar(label='Equivalent Reflectivity (dBZ)')
+    plt.savefig(f'kazr_{file[-18:-3]}.png', dpi=1000)
+    plt.close('all')
+
+for file in met_data:
+    data = netCDF4.Dataset(file).variables
+    temp = np.array(data.get('temp_mean'))
+    rh = np.array(data.get('rh_mean'))
+    time = np.array(data.get('time'))
+    plt.plot(time, temp)
+    plt.xlabel('Time (seconds since midnight)')
+    plt.ylabel(r'Average Temperature (C)')
+    plt.title(f'Time vs Temperature ({file[-18:-3]})')
+    plt.savefig(f'temp_{file[-18:-3]}.png', dpi=1000)
+    plt.close('all')
+    plt.plot(time, rh)
+    plt.xlabel('Time (seconds since midnight)')
+    plt.ylabel(r'Average Relative Humidity (%)')
+    plt.title(f'Time vs RH ({file[-18:-3]})')
+    plt.savefig(f'rh_{file[-18:-3]}.png', dpi=1000)
+    plt.close('all')
+
 for file in sonde_data:
     data = netCDF4.Dataset(file).variables
     p = np.array(data.get('pres')) * units.hPa
