@@ -86,6 +86,7 @@ for file in met_data:
     temp = np.array(data.get('temp_mean'))
     rh = np.array(data.get('rh_mean'))
     time = np.array(data.get('time'))
+    horiz_wind = np.array(data.get('wspd_vec_mean'))
     plt.plot(time, temp)
     plt.xlabel('Time (seconds since midnight)')
     plt.ylabel(r'Average Temperature (C)')
@@ -97,6 +98,12 @@ for file in met_data:
     plt.ylabel(r'Average Relative Humidity (%)')
     plt.title(f'Time vs RH ({file[-18:-3]})')
     plt.savefig(f'rh_{file[-18:-3]}.png', dpi=1000)
+    plt.close('all')
+    plt.plot(time, horiz_wind)
+    plt.xlabel('Time (seconds since midnight)')
+    plt.ylabel(r'Horizontal wind ($\frac{m}{s}$)')
+    plt.title(f'Time vs Horizontal Wind Speed ({file[-18:-3]})')
+    plt.savefig(f'wspd_{file[-18:-3]}.png', dpi=1000)
     plt.close('all')
 
 for file in sonde_data:
