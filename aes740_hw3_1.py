@@ -10,7 +10,7 @@ from metpy.units import units
 
 data = pd.read_csv('input_sounding', skiprows=[0], header=None, sep=' ')
 surface = pd.read_csv('input_sounding', skiprows=np.arange(1, len(data) + 1, 1),
-                      header=None, sep = '       ')
+                      header=None, sep='       ')
 data.columns = ['Height', 'Potential Temp', 'qv', 'u', 'v']
 surface.columns = ['Pressure', 'Potential Temp', 'qv']
 
@@ -56,7 +56,7 @@ fig = plt.figure(figsize=(18, 12))
 skew = SkewT(fig, rotation=45, rect=(0.05, 0.05, 0.50, 0.90))
 
 # add the Metpy logo
-add_metpy_logo(fig, 105, 85, size='small')
+add_metpy_logo(fig, 105, 85)
 
 # Change to adjust data limits and give it a semblance of what we want
 skew.ax.set_adjustable('datalim')
@@ -320,5 +320,3 @@ plt.figtext(0.45, 0.97, 'Inputted Sounding',
 # Show the plot
 plt.savefig('sounding.png')
 plt.show()
-
-exit()
