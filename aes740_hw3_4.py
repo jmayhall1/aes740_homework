@@ -15,9 +15,9 @@ from metpy.cbook import get_test_data
 from metpy.plots import add_metpy_logo, Hodograph, SkewT
 from metpy.units import units
 
-data = pd.read_csv('input_sounding', skiprows=[0], header=None, sep=' ')
+data = pd.read_csv('input_sounding', skiprows=[0], header=None, sep='\t')
 surface = pd.read_csv('input_sounding', skiprows=np.arange(1, len(data) + 1, 1),
-                      header=None, sep='       ')
+                      header=None, sep='\s+')
 data.columns = ['Height', 'Potential Temp', 'qv', 'u', 'v']
 surface.columns = ['Pressure', 'Potential Temp', 'qv']
 
@@ -60,7 +60,7 @@ t_surface = mpcalc.temperature_from_potential_temperature(p_surface,
 td_surface = mpcalc.dewpoint_from_specific_humidity(p_surface, surface.qv.values[0] * units('g/kg'))
 lcl_pressure, lcl_temperature = mpcalc.lcl(p_surface, t_surface, td_surface)
 
-model_data = netCDF4.Dataset('C:/Users/jmayhall/Downloads/aes740_hw3/cm1out_diff.nc').variables
+model_data = netCDF4.Dataset('C:/Users/jmayhall/Downloads/aes740_hw3/cm1out_shear.nc').variables
 model_qv = np.array(model_data.get('qv'))[:, :, 0, :]
 qc = np.array(model_data.get('qc'))[:, :, 0, :]
 qr = np.array(model_data.get('qr'))[:, :, 0, :]
@@ -77,13 +77,13 @@ qla = np.subtract(surface.qv.values[0] / 1000, parcel_mixing_ratio.magnitude)
 
 for i in range(ql.shape[0]):
     current_data = np.multiply(np.divide(ql[i, :, :], qla[:, np.newaxis]), 100)
-    plt.imshow(current_data, vmin=0, vmax=45, aspect='auto', cmap='rainbow')
+    plt.imshow(current_data, vmin=0, vmax=15, aspect='auto', cmap='rainbow')
     plt.gca().invert_yaxis()
     plt.ylabel('Height (m)')
     plt.xlabel('Distance (m)')
     plt.title(f'Adiabatic Fraction (%) at {2 * i} Minutes')
     plt.colorbar(label='%')
-    plt.savefig(f'C:/Users/jmayhall/Downloads/aes740_hw3/af_diff/af_time{i}.png')
+    plt.savefig(f'C:/Users/jmayhall/Downloads/aes740_hw3/af_shear/af_time{i}.png')
     plt.close('all')
 
 model_data2 = netCDF4.Dataset('C:/Users/jmayhall/Downloads/aes740_hw3/cm1out.nc').variables
@@ -101,11 +101,11 @@ for i in range(ql.shape[0]):
     current_data = np.multiply(np.divide(ql[i, :, :], qla[:, np.newaxis]), 100)
     current_data2 = np.multiply(np.divide(ql2[i, :, :], qla2[:, np.newaxis]), 100)
     current_data -= current_data2
-    plt.imshow(current_data, vmin=-np.nanmax(current_data), vmax=np.nanmax(current_data), aspect='auto', cmap='rainbow')
+    plt.imshow(current_data, vmin=np.nanmin(current_data), vmax=-np.nanmin(current_data), aspect='auto', cmap='rainbow')
     plt.gca().invert_yaxis()
     plt.ylabel('Height (m)')
     plt.xlabel('Distance (m)')
-    plt.title(f'Difference between AF and AF with Diffusion at {2 * i} Minutes')
+    plt.title(f'Difference between AF and AF with Stronger Shear at {2 * i} Minutes')
     plt.colorbar(label='%')
-    plt.savefig(f'C:/Users/jmayhall/Downloads/aes740_hw3/afvsaf_diff/af_time{i}.png')
+    plt.savefig(f'C:/Users/jmayhall/Downloads/aes740_hw3/afvsaf_shear/af_time{i}.png')
     plt.close('all')

@@ -5,6 +5,8 @@ Code for homework 2 in AES 740
 """
 import os
 import glob
+
+import metpy.calc
 import netCDF4
 import matplotlib.pyplot as plt
 import numpy as np
@@ -66,23 +68,26 @@ td_surface = mpcalc.dewpoint_from_specific_humidity(p_surface, surface.qv.values
 lcl_pressure, lcl_temperature = mpcalc.lcl(p_surface, t_surface, td_surface)
 
 # Calculate full parcel profile and add to plot as black line
-prof = mpcalc.parcel_profile(p, t_surface, td_surface).to('degC')
+# prof = mpcalc.parcel_profile(p, t_surface, td_surface).to('degC')
 
-model_qv = np.array(netCDF4.Dataset('C:/Users/jmayhall/Downloads/aes740_hw3/cm1out.nc').variables.get('qv'))[:, :, 0, :]
-qc = np.array(netCDF4.Dataset('C:/Users/jmayhall/Downloads/aes740_hw3/cm1out.nc').variables.get('qc'))[:, :, 0, :]
-qr = np.array(netCDF4.Dataset('C:/Users/jmayhall/Downloads/aes740_hw3/cm1out.nc').variables.get('qr'))[:, :, 0, :]
+model_data = netCDF4.Dataset('C:/Users/jmayhall/Downloads/aes740_hw3/cm1out.nc').variables
+model_qv = np.array(model_data.get('qv'))[:, :, 0, :]
+qc = np.array(model_data.get('qc'))[:, :, 0, :]
+qr = np.array(model_data.get('qr'))[:, :, 0, :]
 ql = qc + qr
 
+model_z = np.array(model_data.get('zh'))
+model_p = mpcalc.height_to_pressure_std(model_z * units.kilometers)
+prof = mpcalc.parcel_profile(model_p, t_surface, td_surface).to('degC')
+
 """Source: https://stackoverflow.com/questions/76277163/plotting-the-parcel-virtual-temp-profile-in-metpy-1-5"""
-parcel_mixing_ratio = mpcalc.saturation_mixing_ratio(p, (prof.magnitude + 273.15) * units.kelvin)
-difference = np.subtract(surface.qv.values[0] / 1000, parcel_mixing_ratio.magnitude)
-qla = np.sum(difference)
+parcel_mixing_ratio = mpcalc.saturation_mixing_ratio(model_p, (prof.magnitude + 273.15) * units.kelvin)
+qla = np.subtract(surface.qv.values[0] / 1000, parcel_mixing_ratio.magnitude)
+qla[qla < 0] = 1
 
-af = np.multiply(np.divide(ql, qla), 100)
-
-for i in range(af.shape[0]):
-    current_data = af[i, :, :]
-    plt.imshow(current_data, vmin=0, vmax=3, aspect='auto', cmap='gist_ncar')
+for i in range(ql.shape[0]):
+    current_data = np.multiply(np.divide(ql[i, :, :], qla[:, np.newaxis]), 100)
+    plt.imshow(current_data, vmin=0, vmax=45, aspect='auto', cmap='rainbow')
     plt.gca().invert_yaxis()
     plt.ylabel('Height (m)')
     plt.xlabel('Distance (m)')
