@@ -73,14 +73,16 @@ prof = mpcalc.parcel_profile(model_p, t_surface, td_surface).to('degC')
 """Source: https://stackoverflow.com/questions/76277163/plotting-the-parcel-virtual-temp-profile-in-metpy-1-5"""
 parcel_mixing_ratio = mpcalc.saturation_mixing_ratio(model_p, (prof.magnitude + 273.15) * units.kelvin)
 qla = np.subtract(surface.qv.values[0] / 1000, parcel_mixing_ratio.magnitude)
-
+z = np.array(netCDF4.Dataset('C:/Users/jmayhall/Downloads/aes740_hw3/cm1out_diff.nc').variables.get('zh'))
+x = np.array(netCDF4.Dataset('C:/Users/jmayhall/Downloads/aes740_hw3/cm1out_diff.nc').variables.get('xh'))
 
 for i in range(ql.shape[0]):
     current_data = np.multiply(np.divide(ql[i, :, :], qla[:, np.newaxis]), 100)
-    plt.imshow(current_data, vmin=0, vmax=45, aspect='auto', cmap='rainbow')
+    plt.imshow(current_data, vmin=0, vmax=45, aspect='auto', cmap='rainbow',
+               extent=[np.min(x), np.max(x), np.max(z), np.min(z)])
     plt.gca().invert_yaxis()
-    plt.ylabel('Height (m)')
-    plt.xlabel('Distance (m)')
+    plt.ylabel('Height (km)')
+    plt.xlabel('Distance (km)')
     plt.title(f'Adiabatic Fraction (%) at {2 * i} Minutes')
     plt.colorbar(label='%')
     plt.savefig(f'C:/Users/jmayhall/Downloads/aes740_hw3/af_diff/af_time{i}.png')
@@ -101,10 +103,11 @@ for i in range(ql.shape[0]):
     current_data = np.multiply(np.divide(ql[i, :, :], qla[:, np.newaxis]), 100)
     current_data2 = np.multiply(np.divide(ql2[i, :, :], qla2[:, np.newaxis]), 100)
     current_data -= current_data2
-    plt.imshow(current_data, vmin=-np.nanmax(current_data), vmax=np.nanmax(current_data), aspect='auto', cmap='rainbow')
+    plt.imshow(current_data, vmin=-np.nanmax(current_data), vmax=np.nanmax(current_data), aspect='auto', cmap='rainbow',
+               extent=[np.min(x), np.max(x), np.max(z), np.min(z)])
     plt.gca().invert_yaxis()
-    plt.ylabel('Height (m)')
-    plt.xlabel('Distance (m)')
+    plt.ylabel('Height (km)')
+    plt.xlabel('Distance (km)')
     plt.title(f'Difference between AF and AF with Diffusion at {2 * i} Minutes')
     plt.colorbar(label='%')
     plt.savefig(f'C:/Users/jmayhall/Downloads/aes740_hw3/afvsaf_diff/af_time{i}.png')

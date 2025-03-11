@@ -15,7 +15,7 @@ from metpy.cbook import get_test_data
 from metpy.plots import add_metpy_logo, Hodograph, SkewT
 from metpy.units import units
 
-data = pd.read_csv('input_sounding', skiprows=[0], header=None, sep='\t')
+data = pd.read_csv('input_sounding', skiprows=[0], header=None, sep='\s+')
 surface = pd.read_csv('input_sounding', skiprows=np.arange(1, len(data) + 1, 1),
                       header=None, sep='\s+')
 data.columns = ['Height', 'Potential Temp', 'qv', 'u', 'v']
@@ -73,14 +73,18 @@ prof = mpcalc.parcel_profile(model_p, t_surface, td_surface).to('degC')
 """Source: https://stackoverflow.com/questions/76277163/plotting-the-parcel-virtual-temp-profile-in-metpy-1-5"""
 parcel_mixing_ratio = mpcalc.saturation_mixing_ratio(model_p, (prof.magnitude + 273.15) * units.kelvin)
 qla = np.subtract(surface.qv.values[0] / 1000, parcel_mixing_ratio.magnitude)
-
+z = np.array(netCDF4.Dataset('C:/Users/jmayhall/Downloads/aes740_hw3/cm1out_shear.nc').variables.get('zh'))
+x = np.array(netCDF4.Dataset('C:/Users/jmayhall/Downloads/aes740_hw3/cm1out_shear.nc').variables.get('xh'))
 
 for i in range(ql.shape[0]):
+    if i == 16:
+        break
     current_data = np.multiply(np.divide(ql[i, :, :], qla[:, np.newaxis]), 100)
-    plt.imshow(current_data, vmin=0, vmax=15, aspect='auto', cmap='rainbow')
+    plt.imshow(current_data, vmin=0, vmax=15, aspect='auto', cmap='rainbow',
+               extent=[np.min(x), np.max(x), np.max(z), np.min(z)])
     plt.gca().invert_yaxis()
-    plt.ylabel('Height (m)')
-    plt.xlabel('Distance (m)')
+    plt.ylabel('Height (km)')
+    plt.xlabel('Distance (km)')
     plt.title(f'Adiabatic Fraction (%) at {2 * i} Minutes')
     plt.colorbar(label='%')
     plt.savefig(f'C:/Users/jmayhall/Downloads/aes740_hw3/af_shear/af_time{i}.png')
@@ -98,13 +102,16 @@ qla2 = np.subtract(surface.qv.values[0] / 1000, parcel_mixing_ratio2.magnitude)
 qla2[qla2 < 0] = 1
 
 for i in range(ql.shape[0]):
+    if i == 16:
+        break
     current_data = np.multiply(np.divide(ql[i, :, :], qla[:, np.newaxis]), 100)
     current_data2 = np.multiply(np.divide(ql2[i, :, :], qla2[:, np.newaxis]), 100)
     current_data -= current_data2
-    plt.imshow(current_data, vmin=np.nanmin(current_data), vmax=-np.nanmin(current_data), aspect='auto', cmap='rainbow')
+    plt.imshow(current_data, vmin=np.nanmin(current_data), vmax=-np.nanmin(current_data), aspect='auto', cmap='rainbow',
+               extent=[np.min(x), np.max(x), np.max(z), np.min(z)])
     plt.gca().invert_yaxis()
-    plt.ylabel('Height (m)')
-    plt.xlabel('Distance (m)')
+    plt.ylabel('Height (km)')
+    plt.xlabel('Distance (km)')
     plt.title(f'Difference between AF and AF with Stronger Shear at {2 * i} Minutes')
     plt.colorbar(label='%')
     plt.savefig(f'C:/Users/jmayhall/Downloads/aes740_hw3/afvsaf_shear/af_time{i}.png')
