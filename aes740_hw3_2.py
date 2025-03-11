@@ -3,10 +3,11 @@
 @author: John Mark Mayhall
 Code for homework 2 in AES 740
 """
-import os
 import glob
-import netCDF4
+import os
+
 import matplotlib.pyplot as plt
+import netCDF4
 import numpy as np
 import pandas as pd
 
@@ -16,7 +17,7 @@ x = np.array(netCDF4.Dataset('C:/Users/jmayhall/Downloads/aes740_hw3/cm1out.nc')
 for i in range(data.shape[0]):
     current_data = data[i, :, :]
     plt.imshow(current_data, vmin=-50, vmax=50, aspect='auto', cmap='gist_ncar',
-               extent=[np.min(x), np.max(x), np.max(z), np.min(z)])
+               extent=(np.min(x), np.max(x), np.max(z), np.min(z)))
     plt.gca().invert_yaxis()
     plt.ylabel('Height (km)')
     plt.xlabel('Distance (km)')
@@ -29,7 +30,7 @@ data = np.array(netCDF4.Dataset('C:/Users/jmayhall/Downloads/aes740_hw3/cm1out.n
 for i in range(data.shape[0]):
     current_data = data[i, :, :]
     plt.imshow(current_data, vmin=0, vmax=0.5, aspect='auto', cmap='terrain_r',
-               extent=[np.min(x), np.max(x), np.max(z), np.min(z)])
+               extent=(np.min(x), np.max(x), np.max(z), np.min(z)))
     plt.gca().invert_yaxis()
     plt.ylabel('Height (km)')
     plt.xlabel('Distance (km)')
@@ -42,7 +43,7 @@ data = np.array(netCDF4.Dataset('C:/Users/jmayhall/Downloads/aes740_hw3/cm1out.n
 for i in range(data.shape[0]):
     current_data = data[i, :, :]
     plt.imshow(current_data, vmin=-1, vmax=1, aspect='auto', cmap='rainbow',
-               extent=[np.min(x), np.max(x), np.max(z), np.min(z)])
+               extent=(np.min(x), np.max(x), np.max(z), np.min(z)))
     plt.gca().invert_yaxis()
     plt.ylabel('Height (km)')
     plt.xlabel('Distance (km)')

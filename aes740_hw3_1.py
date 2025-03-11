@@ -1,16 +1,14 @@
 # coding=utf-8
 import matplotlib.pyplot as plt
+import metpy.calc as mpcalc
 import numpy as np
 import pandas as pd
-
-import metpy.calc as mpcalc
-from metpy.cbook import get_test_data
 from metpy.plots import add_metpy_logo, Hodograph, SkewT
 from metpy.units import units
 
 data = pd.read_csv('input_sounding', skiprows=[0], header=None, sep=' ')
 surface = pd.read_csv('input_sounding', skiprows=np.arange(1, len(data) + 1, 1),
-                      header=None, sep='       ')
+                      header=None, sep='\s+')
 data.columns = ['Height', 'Potential Temp', 'qv', 'u', 'v']
 surface.columns = ['Pressure', 'Potential Temp', 'qv']
 
@@ -58,7 +56,7 @@ skew = SkewT(fig, rotation=45, rect=(0.05, 0.05, 0.50, 0.90))
 # add the Metpy logo
 add_metpy_logo(fig, 105, 85)
 
-# Change to adjust data limits and give it a semblance of what we want
+# Change to adjust data limits and give it the semblance of what we want
 skew.ax.set_adjustable('datalim')
 skew.ax.set_ylim(1020, 100)
 skew.ax.set_xlim(-20, 30)
@@ -88,14 +86,14 @@ for i in range(0, 8):
 skew.plot(p, T, 'r', lw=4, label='TEMPERATURE')
 skew.plot(p, Td, 'g', lw=4, label='DEWPOINT')
 
-# Again we can use some simple Python math functionality to 'resample'
+# Again, we can use some simple Python math functionality to 'resample'
 # the wind barbs for a cleaner output with increased readability.
 # Something like this would work.
 interval = np.logspace(2, 3, 40) * units.hPa
 idx = mpcalc.resample_nn_1d(p, interval)
 skew.plot_barbs(pressure=p[idx], u=u[idx], v=v[idx])
 
-# Add the relevant special lines native to the Skew-T Log-P diagram &
+# Add the relevant special lines native to the Skew-T Log-P diagram and
 # provide basic adjustments to linewidth and alpha to increase readability
 # first, we add a matplotlib axvline to highlight the 0-degree isotherm
 skew.ax.axvline(0 * units.degC, linestyle='--', color='blue', alpha=0.3)
@@ -106,7 +104,7 @@ skew.plot_mixing_lines(lw=1, alpha=0.3)
 # Calculate LCL height and plot as a black dot. Because `p`'s first value is
 # ~1000 mb and its last value is ~250 mb, the `0` index is selected for
 # `p`, `T`, and `Td` to lift the parcel from the surface. If `p` was inverted,
-# i.e. start from a low value, 250 mb, to a high value, 1000 mb, the `-1` index
+# i.e., start from a low value, 250 mb, to a high value, 1000 mb, the `-1` index
 # should be selected.
 p_surface = surface.Pressure.values[0] * units.hectopascals
 t_surface = mpcalc.temperature_from_potential_temperature(p_surface,
@@ -134,18 +132,18 @@ skew.shade_cin(p, T, prof, Td, alpha=0.2, label='SBCIN')
 skew.shade_cape(p, T, prof, alpha=0.2, label='SBCAPE')
 
 # STEP 3: CREATE THE HODOGRAPH INSET. TAKE A FEW EXTRA STEPS TO
-# INCREASE READABILITY
-# Create a hodograph object: first we need to add an axis
+# INCREASE THE READABILITY.
+# Create a hodograph object: first we need to add an axis,
 # then we can create the Metpy Hodograph
 hodo_ax = plt.axes((0.48, 0.45, 0.5, 0.5))
-h = Hodograph(hodo_ax, component_range=80.)
+h = Hodograph(hodo_ax)
 
 # Add two separate grid increments for a cooler look. This also
 # helps to increase readability
 h.add_grid(increment=20, ls='-', lw=1.5, alpha=0.5)
 h.add_grid(increment=10, ls='--', lw=1, alpha=0.2)
 
-# The next few steps makes for a clean hodograph inset, removing the
+# The next few steps make for a clean hodograph inset, removing the
 # tick marks, tick labels, and axis labels
 h.ax.set_box_aspect(1)
 h.ax.set_yticklabels([])
@@ -206,7 +204,7 @@ mlcape, mlcin = mpcalc.mixed_layer_cape_cin(p, T, prof, depth=50 * units.hPa)
 mu_p, mu_t, mu_td, _ = mpcalc.most_unstable_parcel(p, T, Td, depth=50 * units.hPa)
 mucape, mucin = mpcalc.most_unstable_cape_cin(p, T, Td, depth=50 * units.hPa)
 
-# Estimate height of LCL in meters from hydrostatic thickness (for sig_tor)
+# Estimate the height of LCL in meters from hydrostatic thickness (for sig_tor)
 new_p = np.append(p[p > lcl_pressure], lcl_pressure)
 new_t = np.append(T[p > lcl_pressure], lcl_temperature)
 lcl_height = mpcalc.thickness_hydrostatic(new_p, new_t)

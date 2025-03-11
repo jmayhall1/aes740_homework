@@ -1,4 +1,8 @@
 # coding=utf-8
+"""
+@author: John Mark Mayhall
+Code for homework 3 in AES 740
+"""
 import pandas as pd
 
 ### Change this to your file location ###
@@ -26,4 +30,4 @@ with open(filename, "w") as f:
     f.write(first_line)
 
 # Append the DataFrame
-df.to_csv(filename, mode = "a", sep = "\t", index = False, header = False)
+df.to_csv(filename, mode="a", sep="\t", index=False, header=False)

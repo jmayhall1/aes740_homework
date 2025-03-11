@@ -1,96 +1,58 @@
 # coding=utf-8
 """
 @author: John Mark Mayhall
-Code for homework 2 in AES 740
+Code for homework 3 in AES 740
 """
-import os
 import glob
+import os
 
+import matplotlib.pyplot as plt
 import metpy.calc
-import netCDF4
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
-
-# coding=utf-8
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
-
 import metpy.calc as mpcalc
-from metpy.cbook import get_test_data
-from metpy.plots import add_metpy_logo, Hodograph, SkewT
+import netCDF4
+import numpy as np
+import pandas as pd
 from metpy.units import units
 
-data = pd.read_csv('input_sounding', skiprows=[0], header=None, sep=' ')
+"""Grab the sounding and surface data."""
+data = pd.read_csv('input_sounding', skiprows=[0], header=None, sep='\s+')
 surface = pd.read_csv('input_sounding', skiprows=np.arange(1, len(data) + 1, 1),
-                      header=None, sep='       ')
+                      header=None, sep='\s+')
+"""Set the column names."""
 data.columns = ['Height', 'Potential Temp', 'qv', 'u', 'v']
 surface.columns = ['Pressure', 'Potential Temp', 'qv']
 
-temp = np.array(data.Height)
-z = []
-for height in temp:
-    z.append(height * units.meters)
-p = []
-for height in z:
-    p.append(mpcalc.height_to_pressure_std(height).magnitude)
-
-T = []
-thetas = np.array(data['Potential Temp'])
-for i, theta in enumerate(thetas):
-    T.append(mpcalc.temperature_from_potential_temperature(p[i] * units.hectopascals,
-                                                           theta * units.kelvin).to(units.celsius).magnitude)
-
+"""Grab the mixing ratio data and create the dewpoint data."""
 qvs = np.array(data.qv)
-Td = []
-for i, qv in enumerate(qvs):
-    Td.append(mpcalc.dewpoint_from_specific_humidity(p[i] * units.hectopascal, qv * units('g/kg')).magnitude)
 
-z = np.array(data.Height) * units.meters
-T = np.array(T) * units.celsius
-Td = np.array(Td) * units.celsius
-p = np.array(p) * units.hectopascal
-
-z = np.insert(z, 0, mpcalc.pressure_to_height_std(surface.Pressure.values[0] * units.hectopascal))
-T = np.insert(T, 0, mpcalc.temperature_from_potential_temperature(surface.Pressure.values[0] * units.hectopascal,
-                                                                  surface['Potential Temp'].values[0] *
-                                                                  units.kelvin).to(units.celsius))
-Td = np.insert(Td, 0, mpcalc.dewpoint_from_specific_humidity(surface.Pressure.values[0] * units.hectopascal,
-                                                             surface.qv.values[0] * units('g/kg')))
-p = np.insert(p, 0, surface.Pressure.values[0] * units.hectopascal)
-
+"""Add units."""
 p_surface = surface.Pressure.values[0] * units.hectopascals
 t_surface = mpcalc.temperature_from_potential_temperature(p_surface,
                                                           surface['Potential Temp'].values[0] *
                                                           units.kelvin).to(units.celsius)
 td_surface = mpcalc.dewpoint_from_specific_humidity(p_surface, surface.qv.values[0] * units('g/kg'))
-lcl_pressure, lcl_temperature = mpcalc.lcl(p_surface, t_surface, td_surface)
 
-# Calculate full parcel profile and add to plot as black line
-# prof = mpcalc.parcel_profile(p, t_surface, td_surface).to('degC')
-
+"""Grab CM1 mixing ratio data."""
 model_data = netCDF4.Dataset('C:/Users/jmayhall/Downloads/aes740_hw3/cm1out.nc').variables
-model_qv = np.array(model_data.get('qv'))[:, :, 0, :]
 qc = np.array(model_data.get('qc'))[:, :, 0, :]
 qr = np.array(model_data.get('qr'))[:, :, 0, :]
-ql = qc + qr
+ql = qc + qr  #qc + qr = mixing ratio needed.
 
+"""Create the needed 400 pressure levels and create the parcel profile."""
 model_z = np.array(model_data.get('zh'))
 model_p = mpcalc.height_to_pressure_std(model_z * units.kilometers)
 prof = mpcalc.parcel_profile(model_p, t_surface, td_surface).to('degC')
 
-"""Source: https://stackoverflow.com/questions/76277163/plotting-the-parcel-virtual-temp-profile-in-metpy-1-5"""
+"""Create the mixing ratio of the parcel, calculate the adiabatic mixing ratio, and grab the z and x data."""
 parcel_mixing_ratio = mpcalc.saturation_mixing_ratio(model_p, (prof.magnitude + 273.15) * units.kelvin)
 qla = np.subtract(surface.qv.values[0] / 1000, parcel_mixing_ratio.magnitude)
-qla[qla < 0] = 1
 z = np.array(netCDF4.Dataset('C:/Users/jmayhall/Downloads/aes740_hw3/cm1out.nc').variables.get('zh'))
 x = np.array(netCDF4.Dataset('C:/Users/jmayhall/Downloads/aes740_hw3/cm1out.nc').variables.get('xh'))
 
 for i in range(ql.shape[0]):
     current_data = np.multiply(np.divide(ql[i, :, :], qla[:, np.newaxis]), 100)
-    plt.imshow(current_data, vmin=0, vmax=45, aspect='auto', cmap='rainbow',
-               extent=[np.min(x), np.max(x), np.max(z), np.min(z)])
+    plt.imshow(current_data, vmax=45, aspect='auto', cmap='rainbow',
+               extent=(np.min(x), np.max(x), np.max(z), np.min(z)))
     plt.gca().invert_yaxis()
     plt.ylabel('Height (km)')
     plt.xlabel('Distance (km)')
